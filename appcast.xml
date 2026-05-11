@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  NotesMap Sparkle update feed.
+
+  This file is hosted via raw.githubusercontent.com (see SUFeedURL in
+  Info.plist). Sparkle inside the running app polls this every 24h and
+  offers any newer version with a valid EdDSA signature.
+
+  Format: https://sparkle-project.org/documentation/publishing/
+
+  Each <item> describes a release. To add a new release:
+    1. Build a signed DMG via scripts/release.sh
+    2. Run: ./tools/sparkle/bin/sign_update release/NotesMap-X.Y.Z.dmg
+       → outputs sparkle:edSignature="…" length="…"
+    3. Upload the DMG to GitHub Releases (tag vX.Y.Z)
+    4. Add a new <item> at the TOP of <channel> below
+    5. Commit + push appcast.xml to main
+
+  v1.0.0 has no <item> entry — it's the initial release; existing users
+  do not need to update from a previous version.
+-->
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     version="2.0">
+    <channel>
+        <title>NotesMap</title>
+        <link>https://raw.githubusercontent.com/floriankuemmel/notesmap-mac/main/appcast.xml</link>
+        <description>NotesMap update feed</description>
+        <language>en</language>
+
+        <!-- New <item> entries go here — newest first. -->
+
+    </channel>
+</rss>

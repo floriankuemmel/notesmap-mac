@@ -1,0 +1,130 @@
+# xcodegen-Spec — erzeugt NotesMap.xcodeproj
+# Neu generieren: `xcodegen generate`
+name: NotesMap
+options:
+  bundleIdPrefix: com.florian
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  minimumXcodeGenVersion: 2.40
+  groupSortPosition: top
+  generateEmptyDirectories: true
+
+configs:
+  Debug: debug
+  Release: release
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+  configs:
+    Debug:
+      CODE_SIGN_STYLE: Automatic
+      CODE_SIGN_IDENTITY: "-"
+    Release:
+      # Override via xcodebuild for distribution:
+      #   DEVELOPMENT_TEAM=ABCDE12345
+      #   CODE_SIGN_IDENTITY="Developer ID Application"
+      #   CODE_SIGN_STYLE=Manual
+      # Defaults to ad-hoc signing for local Release builds without a Dev account.
+      CODE_SIGN_STYLE: Automatic
+      CODE_SIGN_IDENTITY: "-"
+      ONLY_ACTIVE_ARCH: NO
+
+packages:
+  GRDB:
+    url: https://github.com/groue/GRDB.swift
+    from: 7.0.0
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.6.0
+
+targets:
+  NotesMap:
+    type: application
+    platform: macOS
+    sources:
+      - path: NotesMap
+        excludes:
+          - "**/*.entitlements"
+          - "Info.plist"
+    resources:
+      - path: NotesMap/Resources
+        type: folder
+    info:
+      path: NotesMap/Info.plist
+      properties:
+        CFBundleName: NotesMap
+        CFBundleDisplayName: NotesMap
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: "14.0"
+        LSApplicationCategoryType: public.app-category.productivity
+        NSHumanReadableCopyright: "Copyright © 2026 Florian Kümmel"
+        NSHighResolutionCapable: true
+        # Kein Accessibility/Automation nötig — wir lesen nur SQLite
+
+        # --- Bundle-Localizations ---
+        # Damit AppKit File/Edit/View/Window/Help & Standard-Items (Cut, Copy,
+        # Paste, ...) in Deutsch ausliefert wenn der User „Deutsch" als
+        # Systemsprache hat. Wir haben keine eigenen .strings-Files — die
+        # Übersetzung kommt komplett aus AppKit selbst.
+        CFBundleAllowMixedLocalizations: true
+        CFBundleLocalizations:
+          - en
+          - de
+
+        # --- Sparkle Auto-Update ---
+        # Feed-URL: raw.githubusercontent.com auf main-Branch, damit jeder
+        # Push der appcast.xml sofort ausgeliefert wird ohne GitHub Pages.
+        SUFeedURL: "https://raw.githubusercontent.com/floriankuemmel/notesmap-mac/main/appcast.xml"
+        # Public EdDSA-Key — wird einmalig nach `tools/sparkle/bin/generate_keys` befüllt.
+        # Der private Key bleibt in der Keychain UND als Backup im Passwort-Manager.
+        SUPublicEDKey: "gbm6TNqvUuCgZsAWZN3W4ReG1xFRND+Je5QexVQEY4I="
+        # Sparkle-2 nutzt XPC-Services für non-sandboxed Apps — explizit aktivieren.
+        SUEnableInstallerLauncherService: true
+        # Update-Check-Intervall: 24h (Default ist 1d), User kann später feiner stellen.
+        SUScheduledCheckInterval: 86400
+        SUEnableAutomaticChecks: true
+    entitlements:
+      path: NotesMap/NotesMap.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.florian.NotesMap
+        PRODUCT_NAME: NotesMap
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: NotesMap/NotesMap.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        COMBINE_HIDPI_IMAGES: YES
+    dependencies:
+      - package: GRDB
+        product: GRDB
+      - package: Sparkle
+        product: Sparkle
+    scheme:
+      testTargets: [NotesMapTests]
+      gatherCoverageData: false
+      commandLineArguments: {}
+
+  NotesMapTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: NotesMapTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.florian.NotesMapTests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "5.10"
+        SWIFT_STRICT_CONCURRENCY: complete
+        # Tests laufen gegen den Host-App-Binary, damit @main + Localized + ViewHelp
+        # alle erreichbar sind, ohne dass wir sie als framework auslagern müssen.
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/NotesMap.app/Contents/MacOS/NotesMap"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+    dependencies:
+      - target: NotesMap

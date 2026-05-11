@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    NotesMap entitlements.
+
+    Deliberately empty under the Hardened Runtime. Rationale:
+
+    -   App Sandbox is NOT enabled. The app must read the Apple Notes
+        SQLite store at
+        ~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite
+        which lives in another app's group container. Sandboxed apps
+        cannot reach this path; only Apple itself can grant the entitlement.
+        We rely on macOS's per-folder Full Disk Access prompt instead, the
+        user explicitly grants the app access in System Settings → Privacy
+        & Security → Full Disk Access.
+
+    -   Hardened Runtime is enabled (project.yml: ENABLE_HARDENED_RUNTIME).
+        With no entitlements, the runtime blocks the dangerous defaults:
+        -   no JIT (com.apple.security.cs.allow-jit)
+        -   no unsigned executable memory
+        -   no library validation bypass
+        -   no DYLD env var hijacking
+        -   no executable page protection bypass
+        -   no debugger attachment in shipped builds
+
+    -   Network access: the app only talks to http://localhost:11434
+        (Ollama, optional, for AI labels and embeddings). Without sandbox,
+        macOS cannot scope this further, but the only network code paths
+        live in EmbeddingService.swift and OllamaLabelService.swift, both
+        hardcoded to localhost.
+
+    Adding ANY key below means weakening this posture. Do not add entries
+    casually, prefer adjusting the architecture so the entitlement isn't
+    needed.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict/>
+</plist>

@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build (${{ matrix.config }})
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v4
+
+      # Use the Xcode shipped on the runner image (currently 16.x). Pin if
+      # GitHub bumps it and our deployment target needs adjusting.
+      - name: Show toolchain versions
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Resolve SwiftPM dependencies
+        run: xcodebuild -resolvePackageDependencies -project NotesMap.xcodeproj
+
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project NotesMap.xcodeproj \
+            -scheme NotesMap \
+            -configuration ${{ matrix.config }} \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      # Test target läuft nur in Debug. Release-Optimierung killt Mirror-Reflection
+      # nicht, aber Test-Targets sind grundsätzlich nicht für Release-Configs ausgelegt
+      # und Apples Stack-Trace-Symbolisierung wird verlässlicher in Debug.
+      - name: Run tests
+        if: matrix.config == 'Debug'
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project NotesMap.xcodeproj \
+            -scheme NotesMap \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Verify vendor JS hashes
+        run: ./scripts/update-vendor-hashes.sh > /tmp/computed-hashes.txt
+
+      - name: Compare against bundled manifest
+        run: |
+          # Extract the four expected SHA-256 lines from the Swift source
+          # and compare them to what the script just printed. If they
+          # diverge, someone updated the vendor file without refreshing
+          # the manifest, and the app would refuse to load it.
+          for f in 3d-force-graph.min.js d3.v7.min.js three.min.js umap-js.min.js; do
+            expected=$(grep -E "\"$f\"" NotesMap/HTML/LinkMapHTMLBuilder.swift | head -1 | grep -oE '[a-f0-9]{64}')
+            actual=$(grep -E "\"$f\"" /tmp/computed-hashes.txt | grep -oE '[a-f0-9]{64}')
+            if [ "$expected" != "$actual" ]; then
+              echo "::error::SHA-256 mismatch for $f"
+              echo "  manifest: $expected"
+              echo "  on disk:  $actual"
+              echo "  Run scripts/update-vendor-hashes.sh and commit the new manifest."
+              exit 1
+            fi
+          done
+          echo "All vendor hashes match."

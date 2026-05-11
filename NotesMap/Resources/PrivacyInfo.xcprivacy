@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Privacy manifest for NotesMap.
+
+    Required by the App Store since May 2024. Not strictly mandatory for
+    direct distribution (this app ships outside the App Store), but a clear
+    public statement of "we collect nothing, we track nothing" makes the
+    same claim machine-checkable for end users and security tooling.
+
+    Sections:
+    -   NSPrivacyTracking: false. The app never tracks the user.
+    -   NSPrivacyTrackingDomains: empty. No domains contacted for tracking.
+    -   NSPrivacyCollectedDataTypes: empty. The app collects no data; the
+        Apple Notes content is read locally and never leaves the device.
+    -   NSPrivacyAccessedAPITypes: declares one Required Reason API:
+        UserDefaults (CA92.1, "Access info from the same app's container").
+        Used to persist the user's UI language and Ollama model choice.
+
+    Verification: `codesign -d --xml -r- ./NotesMap.app | plutil -convert xml1 -o - -`
+    after build, or open the .app in Finder, "Show Package Contents",
+    Resources/PrivacyInfo.xcprivacy.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSPrivacyTracking</key>
+    <false/>
+
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>

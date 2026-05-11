@@ -1,0 +1,47 @@
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.swp
+
+# xcodegen erzeugt die .xcodeproj — wir committen sie, damit das Projekt
+# auch ohne xcodegen öffnet. Wer will kann "NotesMap.xcodeproj" auch
+# ignorieren und bei jedem Clone `xcodegen generate` laufen lassen.
+
+# SwiftPM
+.build/
+.swiftpm/
+Packages/
+# Package.resolved wird committet, damit Builds reproduzierbar sind
+# (App-Projekt, keine Library: jeder Clone muss exakt dieselben Versionen ziehen).
+
+# Fastlane / CI
+fastlane/report.xml
+fastlane/screenshots/
+fastlane/test_output/
+
+# Release-Artefakte (DMG, .app.zip aus Build-Skripten)
+release/
+*.dmg
+*.app.zip
+
+# Sparkle release tools (downloaded by scripts/setup-sparkle-tools.sh)
+tools/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Claude Code Settings (user-spezifische lokale Pfade)
+.claude/
+
+# IDE
+.idea/
+.vscode/
+.zed/

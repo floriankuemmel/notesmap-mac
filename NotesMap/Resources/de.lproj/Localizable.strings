@@ -1,0 +1,8 @@
+/* NotesMap, Deutsche Lokalisierung (Marker).
+ * Bewusst leer. NotesMap hat seine eigene Übersetzungstabelle in
+ * NotesMap/Localization.swift; diese Datei existiert nur damit das
+ * Bundle „Deutsch" als unterstützte Sprache deklariert. Damit liefert
+ * AppKit seine eigenen lokalisierten Strings (Datei/Bearbeiten/Ansicht-
+ * Menüs etc.) auf Deutsch aus, wenn der User Deutsch als Systemsprache
+ * hat.
+ */

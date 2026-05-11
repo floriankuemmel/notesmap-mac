@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Distribution method:
+         "developer-id"    → signed for direct distribution outside the App Store (requires DEV_TEAM)
+         "mac-application" → unsigned local build for personal use
+    -->
+    <key>method</key>
+    <string>developer-id</string>
+
+    <!-- Replace via release.sh's envsubst at build time. Pass DEVELOPMENT_TEAM=XXXXXXXXXX -->
+    <key>teamID</key>
+    <string>${DEVELOPMENT_TEAM}</string>
+
+    <!-- Manual signing — release.sh sets the certificate name explicitly. -->
+    <key>signingStyle</key>
+    <string>manual</string>
+
+    <key>signingCertificate</key>
+    <string>Developer ID Application</string>
+
+    <!-- Hardened runtime is on in project.yml; this enables the notarization-required flag. -->
+    <key>uploadSymbols</key>
+    <false/>
+
+    <key>compileBitcode</key>
+    <false/>
+</dict>
+</plist>

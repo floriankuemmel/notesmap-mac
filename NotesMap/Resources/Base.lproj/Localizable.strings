@@ -1,0 +1,6 @@
+/* NotesMap, Base/English localization marker.
+ * Empty on purpose. NotesMap manages its own translations through
+ * NotesMap/Localization.swift; this file exists only so the bundle
+ * declares English (= Base) as a supported localization, which lets
+ * AppKit serve its own localized strings (File/Edit/View/etc menus).
+ */
