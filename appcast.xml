@@ -31,6 +31,26 @@
         <!-- New <item> entries go here — newest first. -->
 
         <item>
+            <title>Version 1.0.2</title>
+            <pubDate>Mon, 25 May 2026 23:19:16 +0200</pubDate>
+            <sparkle:version>3</sparkle:version>
+            <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h3>Bug fix</h3>
+                <p>Users on macOS 14 (Sonoma) saw an empty graph despite a healthy Apple Notes database. The root cause was a hardcoded CoreData entity discriminator that shifts between macOS versions. NotesMap now resolves the correct value dynamically from the schema metadata, so it works on every macOS version (current and future).</p>
+                <h3>Diagnostic improvement</h3>
+                <p>The diagnostic log added in v1.0.1 now records the resolved entity value, so future schema drift surfaces at a glance.</p>
+                <p>Thanks to Damien Schreurs for the detailed bug report that made this fix possible.</p>
+            ]]></description>
+            <enclosure
+                url="https://github.com/floriankuemmel/notesmap-mac/releases/download/v1.0.2/NotesMap-1.0.2.dmg"
+                sparkle:edSignature="Dy65gSlbTGwZAZkybEq5nc1ILbD0sRZO4d9A+iGNcaIRPjL4n20FQH1ZyiEoHcyHHCJs8iN/9+yuLkh4Lrr3Bg=="
+                length="11151154"
+                type="application/octet-stream" />
+        </item>
+
+        <item>
             <title>Version 1.0.1</title>
             <pubDate>Mon, 25 May 2026 22:56:47 +0200</pubDate>
             <sparkle:version>2</sparkle:version>
