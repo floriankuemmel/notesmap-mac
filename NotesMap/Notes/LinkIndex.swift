@@ -53,6 +53,13 @@ enum LinkIndexBuilder {
         // Trash-Ausschluss: ZFOLDERTYPE=1 ist "Zuletzt gelöscht". AppleScript-
         // Delete setzt ZMARKEDFORDELETION nicht, nur ZFOLDER auf den Trash;
         // deshalb müssen beide Filter her.
+        // Z_ENT dynamisch resolven (variiert pro macOS-Version, siehe Queries.swift Header)
+        let entFilter: String
+        if let ent = NoteStoreQueries.noteEntityZ(db) {
+            entFilter = "AND c1.Z_ENT = \(ent)"
+        } else {
+            entFilter = ""
+        }
         let noteRows = try Row.fetchAll(db, sql: """
             SELECT
                 c1.Z_PK            AS note_id,
@@ -65,7 +72,7 @@ enum LinkIndexBuilder {
             WHERE c1.ZTITLE1 IS NOT NULL
               AND (c1.ZMARKEDFORDELETION IS NULL OR c1.ZMARKEDFORDELETION = 0)
               AND (c2.ZFOLDERTYPE IS NULL OR c2.ZFOLDERTYPE != 1)
-              AND c1.Z_ENT = 12
+              \(entFilter)
             """)
 
         var uuidToNoteId: [String: Int64] = [:]

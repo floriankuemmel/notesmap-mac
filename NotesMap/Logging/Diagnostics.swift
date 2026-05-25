@@ -92,11 +92,21 @@ enum Diagnostics {
             Log.warn("Could not query Z_PRIMARYKEY (table may not exist on this macOS version)")
         }
 
-        // 4. Note count via our current query (with the hardcoded Z_ENT=12)
-        let countWithFilter: Int = (try? db.read { try NoteStoreQueries.countNotes($0) }) ?? -1
-        Log.info("Notes via current filter (Z_ENT=12): \(countWithFilter)")
+        // 4. Resolved Z_ENT für ICNote (was vorher als 12 hardcoded, ist seit
+        // v1.0.2 dynamisch). Loggen wir explizit, damit man sofort sieht
+        // welcher Wert für die Queries verwendet wird.
+        let resolvedZEnt: Int? = (try? db.read { NoteStoreQueries.noteEntityZ($0) }) ?? nil
+        if let z = resolvedZEnt {
+            Log.info("Resolved Z_ENT for ICNote: \(z)\(z == 12 ? " (matches former hardcode)" : " (would have been wrong with former hardcode of 12)")")
+        } else {
+            Log.warn("Z_ENT for ICNote could not be resolved from Z_PRIMARYKEY (queries will run without Z_ENT filter)")
+        }
 
-        // 5. Note-like rows count without Z_ENT filter (sanity check)
+        // 5. Note count via the dynamic filter (post-fix)
+        let countWithFilter: Int = (try? db.read { try NoteStoreQueries.countNotes($0) }) ?? -1
+        Log.info("Notes via current filter: \(countWithFilter)")
+
+        // 6. Note-like rows count without ANY Z_ENT filter (sanity check)
         let countNoFilter: Int = (try? db.read { database in
             try Int.fetchOne(database, sql: """
                 SELECT COUNT(*) FROM ZICCLOUDSYNCINGOBJECT
@@ -107,10 +117,11 @@ enum Diagnostics {
         }) ?? -1
         Log.info("Notes without Z_ENT filter (sanity): \(countNoFilter)")
 
-        // 6. Anomaly detection: if count is 0 with filter but >0 without, we
-        // know the Z_ENT discriminator differs on this macOS version.
+        // 7. Anomaly detection: even with dynamic resolve, if the filter still
+        // returns 0 but there are note-like rows, something else is wrong
+        // (e.g. very unusual schema, all notes in deleted folder, etc).
         if countWithFilter == 0 && countNoFilter > 0 {
-            Log.error("⚠️ Z_ENT MISMATCH DETECTED: hardcoded filter Z_ENT=12 returned 0 notes, but \(countNoFilter) note-like rows exist without the filter. The 'note' entity has a different Z_ENT on this user's macOS version. Check the Z_PRIMARYKEY entity map above to find the correct value.")
+            Log.error("⚠️ ZERO NOTES with current filter but \(countNoFilter) note-like rows exist. Either all notes are in the deleted folder, or the Z_PRIMARYKEY resolve picked an unexpected entity. Resolved Z_ENT: \(resolvedZEnt.map(String.init) ?? "nil")")
         }
 
         // 7. Account info: how many accounts have notes (via ZACCOUNT7 FK)
