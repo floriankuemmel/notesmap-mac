@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		029A5FF540A7062FF489E472 /* NoteStoreWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28913A7D1903DC8273CEC856 /* NoteStoreWatcher.swift */; };
 		059139442FE3043C1FCA3E2C /* HelpContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB057903D72C947E9C2A799C /* HelpContent.swift */; };
+		0AD50EA03ABB34818B2DB724 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8BB410EB74D1ADCEAA3D11 /* Logger.swift */; };
 		10FA5FDE925B582160C4B8E5 /* 02-radial.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0B4843B53DC76430DC97A2FD /* 02-radial.jpg */; };
 		130A7CCCDB6EE24EF6BBFB47 /* ViewHelp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF1E48BF75D5751142E83B /* ViewHelp.swift */; };
 		14EA9A4A251E9BF17840A306 /* NoteStoreDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEDBEC61BBB5E6C83A62D2BB /* NoteStoreDatabase.swift */; };
@@ -40,6 +41,7 @@
 		ABC75CD6408CB92DD9FBC230 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = F50F96A14FAC6FB544217223 /* Sparkle */; };
 		AF88693B50E8C84DE9F602B7 /* CheckForUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47BAB1AAA45CC8A1B8694DB /* CheckForUpdatesView.swift */; };
 		B327C99CFCBD59F525C26470 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00CBE0A0EFE11CBB0F1FE407 /* Assets.xcassets */; };
+		BF22941A5A62A6BC921A2F7D /* Diagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EE0073AD01469F09F9E2FB /* Diagnostics.swift */; };
 		D1839900FC7322000F5A32B3 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012AA030C5E699335F54C616 /* WebView.swift */; };
 		D3A6D06335D8C142E350C206 /* EmbeddingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 899EF2F2AD7F456CD733F2DD /* EmbeddingService.swift */; };
 		D3C34E717EC94895A1D57F02 /* 07-heightmap-2d.jpg in Resources */ = {isa = PBXBuildFile; fileRef = DC075720B169587C38D01E42 /* 07-heightmap-2d.jpg */; };
@@ -75,6 +77,7 @@
 		35083B3E8D3E7E78676E3011 /* PeakLabelCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeakLabelCache.swift; sourceTree = "<group>"; };
 		380AD31A665BA38D55ED9032 /* d3.v7.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = d3.v7.min.js; sourceTree = "<group>"; };
 		3975B217FBFFFEDA00E37C90 /* umap-js.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "umap-js.min.js"; sourceTree = "<group>"; };
+		4D8BB410EB74D1ADCEAA3D11 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		4FD1272D0AED09919645A5E9 /* 06-months.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "06-months.jpg"; sourceTree = "<group>"; };
 		501B2C9705EB607A5FF36C78 /* PlaintextExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaintextExtractor.swift; sourceTree = "<group>"; };
 		5FAB20B1D1D71ACDEA547AB5 /* 08-heightmap-3d.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "08-heightmap-3d.jpg"; sourceTree = "<group>"; };
@@ -98,6 +101,7 @@
 		CC8478DBE113B46997370706 /* LinkIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkIndex.swift; sourceTree = "<group>"; };
 		CD8F3EC9ED1351258D264BE4 /* 3d-force-graph.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "3d-force-graph.min.js"; sourceTree = "<group>"; };
 		D47BAB1AAA45CC8A1B8694DB /* CheckForUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesView.swift; sourceTree = "<group>"; };
+		D4EE0073AD01469F09F9E2FB /* Diagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Diagnostics.swift; sourceTree = "<group>"; };
 		DA44F6187352642A28A83F70 /* 05-days.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "05-days.jpg"; sourceTree = "<group>"; };
 		DB057903D72C947E9C2A799C /* HelpContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpContent.swift; sourceTree = "<group>"; };
 		DC075720B169587C38D01E42 /* 07-heightmap-2d.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "07-heightmap-2d.jpg"; sourceTree = "<group>"; };
@@ -128,6 +132,15 @@
 				282EA5C776517EC725E06D89 /* LocalizationParityTests.swift */,
 			);
 			path = NotesMapTests;
+			sourceTree = "<group>";
+		};
+		20492B2BAC64C3D3FA434634 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				D4EE0073AD01469F09F9E2FB /* Diagnostics.swift */,
+				4D8BB410EB74D1ADCEAA3D11 /* Logger.swift */,
+			);
+			path = Logging;
 			sourceTree = "<group>";
 		};
 		2D763DF3EE38982D99DF22B6 /* vendor */ = {
@@ -200,6 +213,7 @@
 			children = (
 				A30D103E4B562268BFDE0402 /* Embeddings */,
 				4E1D8EA75E7E699B7822E147 /* HTML */,
+				20492B2BAC64C3D3FA434634 /* Logging */,
 				D60F00FC8F0F611BA392EE9D /* Notes */,
 				ED3FA05697EB85AFF9478FAB /* Resources */,
 				AE8DE0E17C23F28232D501EB /* Views */,
@@ -376,6 +390,7 @@
 			files = (
 				AF88693B50E8C84DE9F602B7 /* CheckForUpdatesView.swift in Sources */,
 				A95D5D5F0C94EDFB28BD362F /* ContentView.swift in Sources */,
+				BF22941A5A62A6BC921A2F7D /* Diagnostics.swift in Sources */,
 				1AE86821514D09DC1518499D /* EmbeddingCache.swift in Sources */,
 				24A204ADFA8A93ECD3BC16DA /* EmbeddingManager.swift in Sources */,
 				D3A6D06335D8C142E350C206 /* EmbeddingService.swift in Sources */,
@@ -386,6 +401,7 @@
 				864338EE1052F5D5AB4990AB /* LinkMapHTMLBuilder.swift in Sources */,
 				966A8162B9FF0D193E7B18C9 /* LinkMapModel.swift in Sources */,
 				6581E1438A65EBC5ABEABD67 /* Localization.swift in Sources */,
+				0AD50EA03ABB34818B2DB724 /* Logger.swift in Sources */,
 				14EA9A4A251E9BF17840A306 /* NoteStoreDatabase.swift in Sources */,
 				029A5FF540A7062FF489E472 /* NoteStoreWatcher.swift in Sources */,
 				A95D48542678C2DF28F7E16F /* NotesMapApp.swift in Sources */,
@@ -536,7 +552,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -556,7 +572,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -605,7 +621,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -619,7 +635,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;

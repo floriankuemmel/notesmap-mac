@@ -31,11 +31,19 @@ struct NotesMapApp: App {
         // Override bei der ersten NSApplication-Auflösung aufgreift.
         LanguagePreference.applyToAppleLanguages()
 
+        // Diagnostic-Logger starten. Rotiert den vorherigen Session-Log, schreibt
+        // Session-Header mit App-Version, macOS-Version, Architektur. Alle
+        // weiteren Log-Punkte landen in ~/Library/Logs/NotesMap/NotesMap.log.
+        Log.startSession()
+        Log.info("App.init starting")
+
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
+
+        Log.info("App.init done")
     }
 
     var body: some Scene {
@@ -60,8 +68,20 @@ struct NotesMapApp: App {
             // nicht vorhandene HelpBook verlinken würde. Stattdessen öffnen wir
             // das eigene HelpView-Fenster (Window-Scene unten). ⌘? ist die
             // macOS-Standard-Tastenkombination für Hilfe.
+            //
+            // Zusätzlich: Diagnostic-Log-Menüpunkte. Privacy-sicher (kein
+            // Inhalt, nur Counts + Status). User sieht den Log selbst, bevor
+            // er ihn weiterschickt — keine versteckte Telemetrie.
             CommandGroup(replacing: .help) {
                 OpenHelpMenuButton()
+                Divider()
+                Button("Show Diagnostic Log in Finder") {
+                    Log.revealLogInFinder()
+                }
+                .keyboardShortcut("L", modifiers: [.command, .option])
+                Button("Copy Diagnostic Log to Clipboard") {
+                    Log.copyCurrentLogToClipboard()
+                }
             }
         }
         // Cmd+, Settings: Ollama-Modell-Auswahl, später auch Sprache.

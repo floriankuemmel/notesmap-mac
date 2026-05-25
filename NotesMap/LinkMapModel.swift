@@ -160,6 +160,7 @@ final class LinkMapModel: ObservableObject {
 
     private func build(quiet: Bool) async {
         isRefreshing = true
+        Log.info("Build started (quiet=\(quiet))")
         do {
             let rendered = try await Task.detached(priority: .userInitiated) {
                 // autoreleasepool: das ist der größte Heap-Spike der App. Vendor-JS
@@ -169,12 +170,20 @@ final class LinkMapModel: ObservableObject {
                 // für die Dauer des Builds; mit Pool sinkt das nach return sofort.
                 try autoreleasepool {
                     let db = try NoteStoreDatabase()
+
+                    // One-shot diagnostic dump auf den ersten Build. Schreibt
+                    // Z_ENT-Verteilung, Z_PRIMARYKEY-Map und Notiz-Zähler in
+                    // den Log, damit Bug-Reports mit Log-File reichen, ohne
+                    // dass wir Console.app-Anleitungen geben müssen.
+                    Diagnostics.dumpOnceIfNeeded(db)
+
                     let (graph, snippets) = try db.read {
                         database -> (LinkGraph, [Int64: String]) in
                         let g = try LinkIndexBuilder.build(database)
                         let plaintext = try NoteStoreQueries.fetchPlaintextMap(database)
                         return (g, plaintext)
                     }
+                    Log.info("Build query OK: graph nodes=\(graph.nodes.count), edges=\(graph.edges.count), snippets=\(snippets.count)")
                     let lang = LanguagePreference.current.resolved
                     return try LinkMapHTMLBuilder.build(
                         graph: graph,
@@ -183,6 +192,7 @@ final class LinkMapModel: ObservableObject {
                     )
                 }
             }.value
+            Log.info("Build HTML rendered, length=\(rendered.count) chars")
 
             html = rendered
             errorMessage = nil
