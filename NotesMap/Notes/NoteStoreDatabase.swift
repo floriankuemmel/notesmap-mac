@@ -72,6 +72,7 @@ final class NoteStoreDatabase {
 
         // Schicht 8: Pfad-Suffix verifizieren (keine willkürlichen DBs öffnen).
         guard resolvedPath.hasSuffix(Self.expectedPathSuffix) else {
+            Log.error("DB path has unexpected suffix")
             throw NoteStoreError.unexpectedPathSuffix(
                 got: resolvedPath,
                 expected: Self.expectedPathSuffix
@@ -80,6 +81,7 @@ final class NoteStoreDatabase {
 
         // Schicht 2: Existenz prüfen (bessere Fehlermeldung als GRDB-Default).
         guard FileManager.default.fileExists(atPath: resolvedPath) else {
+            Log.error("NoteStore.sqlite not found at expected path (suffix: \(Self.expectedPathSuffix))")
             throw NoteStoreError.databaseNotFound(path: resolvedPath)
         }
 
@@ -92,7 +94,9 @@ final class NoteStoreDatabase {
 
         do {
             self.dbQueue = try DatabaseQueue(path: resolvedPath, configuration: config)
+            Log.info("NoteStore.sqlite opened read-only (path suffix matches)")
         } catch {
+            Log.error("NoteStore.sqlite open failed: \(error.localizedDescription)")
             throw NoteStoreError.accessDenied(path: resolvedPath, underlying: error)
         }
     }
