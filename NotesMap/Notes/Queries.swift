@@ -2,7 +2,7 @@
 //
 // Spalten-Mapping empirisch validiert für macOS 15 (Sequoia) / Notes 4.11:
 //   Z_PK                 Primary key (int)
-//   Z_ENT = 12          Notiz-Entity
+//   Z_ENT                Notiz-Entity, dynamisch resolved (siehe noteEntityZ)
 //   ZIDENTIFIER         UUID (String, z.B. "ABC-1234-…")
 //   ZTITLE1             Notiztitel
 //   ZTITLE2             Ordnertitel
@@ -12,6 +12,14 @@
 //   ZACCOUNT7           FK auf Account (NICHT 2!)
 //   ZMARKEDFORDELETION  1 = endgültig gelöscht (nach Trash-Emptying)
 //   ZFOLDERTYPE         0 = normaler Ordner, 1 = "Zuletzt gelöscht", 3 = Quick Notes
+//
+// Z_ENT-Wert für ICNote wandert zwischen macOS-Versionen, weil Apple
+// Entities hinzufügt (z.B. ICAssetSignature in macOS 26). Wir resolven
+// den Wert dynamisch über Z_PRIMARYKEY, ein hardcoded Wert (war 12)
+// hätte den Bug aus Damiens v1.0-Report ausgelöst:
+//   macOS 14.x (Sonoma):   ICNote = Z_ENT 11
+//   macOS 15.x (Sequoia):  ICNote = Z_ENT 12
+//   macOS 26.x:            ICNote = Z_ENT 12
 //
 // Wichtig zum Papierkorb: Wenn eine Notiz via AppleScript `delete` (oder per UI)
 // in den Papierkorb wandert, ändert Apple Notes NUR `ZFOLDER` auf den
@@ -53,9 +61,38 @@ private func dateFromCocoa(_ cocoaSeconds: Double?) -> Date? {
 
 enum NoteStoreQueries {
 
+    /// Resolved den Z_ENT-Discriminator für ICNote dynamisch aus Z_PRIMARYKEY.
+    /// Apple verschiebt diese ID zwischen macOS-Versionen wenn neue Entities
+    /// hinzukommen — Hardcoding (vorher: 12) hat auf älteren macOS-Versionen
+    /// 0 Notizen geliefert.
+    ///
+    /// Liefert nil wenn Z_PRIMARYKEY fehlschlägt (sehr alte/exotische DBs).
+    /// Caller müssen den Z_ENT-Filter dann weglassen und sich auf
+    /// ZTITLE1 + ZCREATIONDATE3 + Folder-Type-Filter verlassen.
+    static func noteEntityZ(_ db: Database) -> Int? {
+        do {
+            let row = try Row.fetchOne(db, sql: """
+                SELECT Z_ENT FROM Z_PRIMARYKEY WHERE Z_NAME = 'ICNote'
+                """)
+            return row?["Z_ENT"]
+        } catch {
+            return nil
+        }
+    }
+
+    /// Hilfsfunktion: liefert " AND <alias>.Z_ENT = N" wenn ICNote resolvebar,
+    /// sonst leeren String (Filter wird weggelassen).
+    private static func zEntFilter(_ db: Database, alias: String = "c1") -> String {
+        guard let ent = noteEntityZ(db) else {
+            return ""
+        }
+        return "AND \(alias).Z_ENT = \(ent)"
+    }
+
     /// Alle nicht-gelöschten Notizen mit Titel und Ordnername.
     /// Sortierung: neueste zuerst.
     static func listAllNotes(_ db: Database) throws -> [NoteSummary] {
+        let entFilter = zEntFilter(db)
         let rows = try Row.fetchAll(db, sql: """
             SELECT
                 c1.Z_PK            AS note_id,
@@ -68,7 +105,7 @@ enum NoteStoreQueries {
             WHERE c1.ZTITLE1 IS NOT NULL
               AND (c1.ZMARKEDFORDELETION IS NULL OR c1.ZMARKEDFORDELETION = 0)
               AND (c2.ZFOLDERTYPE IS NULL OR c2.ZFOLDERTYPE != 1)
-              AND c1.Z_ENT = 12
+              \(entFilter)
             ORDER BY c1.ZCREATIONDATE3 DESC
             """)
 
@@ -95,13 +132,14 @@ enum NoteStoreQueries {
     /// Performance-Hinweis: 1184 Notizen brauchen grob ~500ms (ungecacht).
     /// Cache fügen wir in Slice 2c ein, wenn Re-Builds häufiger werden.
     static func fetchPlaintextMap(_ db: Database) throws -> [Int64: String] {
+        let entFilter = zEntFilter(db)
         let rows = try Row.fetchAll(db, sql: """
             SELECT c1.Z_PK AS note_id, nd.ZDATA AS data
             FROM ZICNOTEDATA AS nd
             JOIN ZICCLOUDSYNCINGOBJECT AS c1 ON c1.Z_PK = nd.ZNOTE
             LEFT JOIN ZICCLOUDSYNCINGOBJECT AS c2 ON c2.Z_PK = c1.ZFOLDER
             WHERE nd.ZDATA IS NOT NULL
-              AND c1.Z_ENT = 12
+              \(entFilter)
               AND (c1.ZMARKEDFORDELETION IS NULL OR c1.ZMARKEDFORDELETION = 0)
               AND (c2.ZFOLDERTYPE IS NULL OR c2.ZFOLDERTYPE != 1)
             """)
@@ -121,6 +159,7 @@ enum NoteStoreQueries {
 
     /// Zählt nicht-gelöschte Notizen (ohne Papierkorb).
     static func countNotes(_ db: Database) throws -> Int {
+        let entFilter = zEntFilter(db)
         let count = try Int.fetchOne(db, sql: """
             SELECT COUNT(*)
             FROM ZICCLOUDSYNCINGOBJECT AS c1
@@ -128,7 +167,7 @@ enum NoteStoreQueries {
             WHERE c1.ZTITLE1 IS NOT NULL
               AND (c1.ZMARKEDFORDELETION IS NULL OR c1.ZMARKEDFORDELETION = 0)
               AND (c2.ZFOLDERTYPE IS NULL OR c2.ZFOLDERTYPE != 1)
-              AND c1.Z_ENT = 12
+              \(entFilter)
             """) ?? 0
         return count
     }
